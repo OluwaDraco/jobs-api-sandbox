@@ -1,37 +1,38 @@
 
-# jobs-api-sandbox
-Mock third-party jobs API for satitech/shotown— DynamoDB-backed, publishes job events to EventBridge.
-# make Bold and underline
-WHY
+ jobs-api-sandbox
+# Mock third-party jobs API for satitech/shotown— DynamoDB-backed, publishes job events to EventBridge.
+ make Bold and underline
+# WHY
 the sati-app was designed around the Upwork api as a tool i wanted to use to help arrange task and (maybe get fresh data) fist directly on the platform. Approval isn't guaranteed hence this service.
 
-# make Bold and underline
-Architecture
-                    ┌──────────────────────────────┐
-                    │      jobs-api-sandbox        │
-                    │                              │
-  POST /jobs ──────▶│  Lambda ──▶ DynamoDB         │
-  GET  /jobs  ─────▶│              │               │
-  GET  /jobs/{id} ─▶│              │ stream        │
-                    │              ▼               │
-                    │           Lambda             │
-                    └──────────────┼───────────────┘
-                                   │
-                                   ▼
-                            EventBridge
-                                   │
-                                   ▼
-                          consumer Lambda
-                                   │
-                                   ▼
-                      API Gateway WebSocket
-                                   │
-                                   ▼
-                          satitech frontend
-                             (live alert)
 
-# make Bold and underline
-Mock Event Payload
+# Architecture
+```mermaid
+flowchart LR
+    subgraph sandbox["jobs-api-sandbox"]
+        API[API Gateway<br/>IAM auth]
+        L1[Lambda handlers]
+        DDB[(DynamoDB)]
+        L2[Lambda<br/>stream publisher]
+    end
+    EB{{EventBridge}}
+    L3[Lambda consumer]
+    WS[API Gateway<br/>WebSocket]
+    FE[satitech frontend]
+    BE[satitech backend]
+
+    BE -->|GET /jobs · SigV4| API
+    API --> L1
+    L1 --> DDB
+    DDB -.stream.-> L2
+    L2 --> EB
+    EB --> L3
+    L3 --> WS
+    WS -->|live alert| FE
+    FE -->|accept| BE
+```
+
+# Mock Event Payload
 {
   "event_id": "evt_01HQZK4M8N",
   "event_type": "job.posted",
@@ -54,14 +55,12 @@ Mock Event Payload
   }
 }
 
-# make Bold and underline
-Endpoints
+
+# Endpoints
 Method	Path	    Purpose
 GET	    /jobs	    List recent jobs, newest first
 GET	    /jobs/{id}	Fetch a single job
 POST	/jobs	    Create a job — triggers the event pipeline
 
-Related
-# make Bold and underline
-
+# Related
 Consumed by satitech — the app this service pretends to be a third party for.
