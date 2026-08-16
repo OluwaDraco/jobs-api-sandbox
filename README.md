@@ -33,6 +33,7 @@ flowchart LR
 ```
 
 # Mock Event Payload
+```json
 {
   "event_id": "evt_01HQZK4M8N",
   "event_type": "job.posted",
@@ -54,6 +55,7 @@ flowchart LR
     }
   }
 }
+```
 
 
 # Endpoints
