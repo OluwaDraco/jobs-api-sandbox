@@ -27,7 +27,8 @@ export class JobsApiSandboxStack extends cdk.Stack {
         });
         const fn = (name: string, entry: string) =>
             new lambdaNode.NodejsFunction(this, name, {
-                entry: `src/handlers/${entry}.ts`,
+                entry: `../src/handlers/${entry}.ts`,
+                projectRoot: "../",
                 environment: { JOBS_TABLE: jobsTable.tableName },
             });
 
@@ -45,6 +46,20 @@ export class JobsApiSandboxStack extends cdk.Stack {
             path: "/jobs",
             methods: [apigw.HttpMethod.GET],
             integration: new HttpLambdaIntegration("ListInt", list),
+            authorizer: new HttpIamAuthorizer(),
+        });
+
+        api.addRoutes({
+            path: "/jobs/{id}",
+            methods: [apigw.HttpMethod.GET],
+            integration: new HttpLambdaIntegration("GetInt", get),
+            authorizer: new HttpIamAuthorizer(),
+        });
+
+        api.addRoutes({
+            path: "/jobs",
+            methods: [apigw.HttpMethod.POST],
+            integration: new HttpLambdaIntegration("CreateInt", create),
             authorizer: new HttpIamAuthorizer(),
         });
 

@@ -1,5 +1,5 @@
 {
-  "app": "npx tsc && npx tsx bin/aws.ts",
+  "app": "npx tsc && npx tsx bin/JobsApiSandboxStack.ts",
   "watch": {
     "include": [
       "**"
